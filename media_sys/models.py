@@ -1,5 +1,5 @@
 from django.db import models
-
+from api_sys.settings import QINIU_ACCESS_KEY, QINIU_SECRET_KEY, QINIU_BUCKET_DOMAIN, QINIU_BUCKET_NAME
 # Create your models here.
 class WXuser(models.Model):
     """
@@ -29,12 +29,46 @@ class Message(models.Model):
     class Meta:
         ordering = ('created',)
 
-class QiniuPic(models.Model):
+class QiniuMedia(models.Model):
     """
     记录上传到七牛的图片
     """
-    key = models.CharField(max_length=512)
+    name = models.CharField(max_length=64)
+    key = models.CharField(max_length=512, null=True)
+    qn_url = models.URLField(null=True, default='')
+    image = models.ImageField(upload_to="qn",blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ('created',)
+
+    def save(self, *args, **kwargs):
+        file_name = str(uuid.uuid4())[:12]
+        self.key = "%s/%s" % (self.key, file_name)
+        self.qn_url = "http://%s/%s" % (QINIU_BUCKET_DOMAIN, self.key)
+        super(QiniuMedia, self).save(*args, **kwargs)
+
+
+from django.db.models.signals import post_save
+from media_sys.tools import Qiqiu
+
+import uuid
+
+
+def upload_image(**kwarge):
+    # disable the handler during fixture loading
+    instance = kwarge['instance']
+    # 上传到七牛云服务
+    qn = Qiqiu(QINIU_ACCESS_KEY, QINIU_SECRET_KEY)
+    qn.upload(QINIU_BUCKET_NAME, instance.key, instance.image.path)
+
+
+def get_file_extension(file_path):
+    import imghdr
+
+    extension = imghdr.what(file_path)
+    extension = "jpg" if extension == "jpeg" else extension
+
+    return extension
+
+post_save.connect(upload_image, sender=QiniuMedia)

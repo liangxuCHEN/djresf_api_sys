@@ -24,7 +24,7 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r'wxusers', views.WxUserViewSet)
-router.register(r'qnpic', views.QiniuPicViewSet)
+router.register(r'qnpic', views.QiniuMediaViewSet)
 router.register(r'message', views.MessageViewSet)
 
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from media_sys.models import WXuser, Message, QiniuPic
+from media_sys.models import WXuser, Message, QiniuMedia
 
 
 class WxUserSerializer(serializers.HyperlinkedModelSerializer):
@@ -8,13 +8,17 @@ class WxUserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('openid', 'name', 'phone')
 
 
-class QiniuPicSerializer(serializers.HyperlinkedModelSerializer):
+class QiniuMediaSerializer(serializers.HyperlinkedModelSerializer):
+
     class Meta:
-        model = QiniuPic
-        fields = ('key', 'created')
+        model = QiniuMedia
+        fields = ('name', 'key', 'image', 'qn_url','created')
 
 
 class MessageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Message
         fields = ('user', 'content', 'pics', 'created')
+
+
+

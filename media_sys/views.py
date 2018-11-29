@@ -3,15 +3,13 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views import generic, csrf
 
-from rest_framework import viewsets
-from rest_framework import mixins
-from rest_framework import generics
+from rest_framework import viewsets,mixins,generics,permissions
 
-from media_sys.models import WXuser, QiniuPic, Message
-from media_sys.serializers import WxUserSerializer, QiniuPicSerializer, MessageSerializer
-
+from media_sys.models import WXuser, QiniuMedia, Message
+from media_sys.serializers import WxUserSerializer, QiniuMediaSerializer, MessageSerializer
+from media_sys.filtesr import WXuserFilter
+from media_sys.permissions import IsAdminOrReadOnly
 import json
-import copy
 
 # Create your views here.
 
@@ -41,7 +39,6 @@ class WxUserList(mixins.ListModelMixin,
     """
     queryset = WXuser.objects.all().order_by('-created')
     serializer_class = WxUserSerializer
-    lookup_field = ('id')
 
     def get(self, request, *args, **kwargs):
         print('request', request.GET)
@@ -63,16 +60,19 @@ class WxUserViewSet(viewsets.ModelViewSet):
     """
     queryset = WXuser.objects.all().order_by('-created')
     serializer_class = WxUserSerializer
+    permission_classes = (IsAdminOrReadOnly,)
     # 使用 title 作为另一个筛选条件
-    filter_fields = ['phone', 'name']
+    #filter_fields = ['name']
+    filter_class =WXuserFilter
 
 
-class QiniuPicViewSet(viewsets.ModelViewSet):
+class QiniuMediaViewSet(viewsets.ModelViewSet):
     """
     七牛多媒体保存
     """
-    queryset = QiniuPic.objects.all().order_by('-created')
-    serializer_class = QiniuPicSerializer
+    queryset = QiniuMedia.objects.all().order_by('-created')
+    serializer_class = QiniuMediaSerializer
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class MessageList(mixins.ListModelMixin,
