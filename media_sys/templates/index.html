@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}主页{% endblock %}
+{% block content %}
+<div class="jumbotron">
+<h1>API列表</h1>
+    <div class="list-group">
+        <!--<button type="button" class="list-group-item"><a href="/news_index">新闻大屏</a></button>-->
+        <li class="list-group-item"><button type="button" class="list-group-item"><a href="/picvote">商家点赞活动</a></button></li>
+        <li class="list-group-item"><button type="button" class="list-group-item"><a href="/airvote">航拍大赛</a></button></li>
+    </div>
+</div>
+{% endblock %}
