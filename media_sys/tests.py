@@ -10,19 +10,19 @@ LOCAL = 'http://localhost:8000'
 #Remote_100 = 'http://172.16.17.100:8999'
 
 def add_user(openid,name,phone):
-    url = LOCAL + "/wxusers/10/"
+    url = LOCAL + "/wxusers/"
     data = {
         'openid': openid,
         'name': name,
         'phone': phone
     }
-    res = requests.put(url, data=data)
+    res = requests.post(url, data=data)
 
     print(res)
 
 
 def add_msg(user, content, pics):
-    url = LOCAL + "/v2/message/"
+    url = LOCAL + "/message/"
     data = {
         'user': user,
         'content': content,
@@ -38,16 +38,16 @@ def get_user():
     print(res.json())
 
 if __name__ == '__main__':
-    add_user(
-        openid='8xze',
-        name='change',
-        phone='712374'
-    )
-
-    # add_msg(
-    #     user='8b33a93xecec23e5f5af8231ze',
-    #     content='Mer0000y',
-    #     pics='1nnnnnnnnnnnnnnnnnnnnnnn74'
+    # add_user(
+    #     openid='8b33a93xecec23e5f5af8231ze',
+    #     name='change',
+    #     phone='712374'
     # )
+
+    add_msg(
+        user='8b33a9ecec23e5f5af8231ze',
+        content='Mer0000y',
+        pics='1nnnnnnnnnnnnnnnnnnnnnnn74'
+    )
 
     #get_user()

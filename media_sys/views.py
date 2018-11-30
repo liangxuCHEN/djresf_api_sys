@@ -3,10 +3,11 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views import generic, csrf
 
-from rest_framework import viewsets,mixins,generics,permissions
+from rest_framework import viewsets,mixins,generics,permissions, status
+from rest_framework.response import Response
 
 from media_sys.models import WXuser, QiniuMedia, Message
-from media_sys.serializers import WxUserSerializer, QiniuMediaSerializer, MessageSerializer
+from media_sys.serializers import WxUserSerializer, QiniuMediaSerializer, MessageSerializer, MessageSerializer_json
 from media_sys.filtesr import WXuserFilter
 from media_sys.permissions import IsAdminOrReadOnly
 import json
@@ -61,9 +62,28 @@ class WxUserViewSet(viewsets.ModelViewSet):
     queryset = WXuser.objects.all().order_by('-created')
     serializer_class = WxUserSerializer
     permission_classes = (IsAdminOrReadOnly,)
+    # 用什么作为唯一设别
+    #lookup_field = 'openid'
     # 使用 title 作为另一个筛选条件
     #filter_fields = ['name']
     filter_class =WXuserFilter
+
+    def create(self, request):
+        openid = request.POST.get('openid')
+        user = WXuser.objects.filter(openid=openid)
+        if len(user) > 0:
+            res = {'message': '用户已经存在', 'is_error': True}
+            return HttpResponse(json.dumps(res), content_type="application/json")
+        else:
+            user = WXuser(
+                openid=openid,
+                name=request.POST.get('name'),
+                phone=request.POST.get('phone'),
+            )
+            user.save()
+            serialize = WxUserSerializer(user, context={'request': request})
+            return Response(serialize.data, status=status.HTTP_201_CREATED)
+
 
 
 class QiniuMediaViewSet(viewsets.ModelViewSet):
@@ -83,6 +103,7 @@ class MessageList(mixins.ListModelMixin,
     """
     queryset = Message.objects.all().order_by('-created')
     serializer_class = MessageSerializer
+    #lookup_field = 'user_openid'
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -118,3 +139,37 @@ class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all().order_by('-created')
     serializer_class = MessageSerializer
     filter_fields = ['user']
+
+
+    def create(self, request):
+        user = request.POST.get('user')
+        if 'http' in user:
+            user_id = user.split('/')[-2]
+            user = WXuser.objects.get(pk=user_id)
+            msg = Message(
+                user=user,
+                content=request.POST.get('content'),
+                pics=request.POST.get('pics'),
+            )
+            msg.save()
+            serialize = MessageSerializer(msg, context={'request': request})
+            return Response(serialize.data, status=status.HTTP_201_CREATED)
+        else:
+
+            try:
+                user = WXuser.objects.filter(openid=request.POST.get('user')).first()
+                if user:
+                    msg = Message(
+                        user=user,
+                        content=request.POST.get('content'),
+                        pics=request.POST.get('pics'),
+                    )
+                    msg.save()
+                    serialize = MessageSerializer_json(msg)
+                    res = {'message': '保存成功', 'msg': serialize.data, 'is_error': False}
+                else:
+                    res = {'message': "没有此用户", 'is_error': True}
+            except Exception as e:
+                res = {'message': e, 'is_error': True}
+
+        return Response(json.dumps(res))

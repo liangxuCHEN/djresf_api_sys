@@ -26,6 +26,7 @@ router = routers.DefaultRouter()
 router.register(r'wxusers', views.WxUserViewSet)
 router.register(r'qnpic', views.QiniuMediaViewSet)
 router.register(r'message', views.MessageViewSet)
+#router.register(r'v2_message', views.MessageList)
 
 
 urlpatterns = [
@@ -33,10 +34,10 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^home$', views.home_page, name='home_page'),
     url(r'^api/', include('rest_framework.urls', namespace='rest_framework')),
-    path('v2/wxusers/', views.WxUserList.as_view()),
-    path('wxusers/<int:pk>/', views.WxUserDetail.as_view()),
+    #path('v2/wxusers/', views.WxUserList.as_view()),
+    #path('wxusers/<int:pk>/', views.WxUserDetail.as_view()),
 
-    path('v2/message/', views.MessageList.as_view()),
+    #path('v2/message/', views.MessageList.as_view()),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
