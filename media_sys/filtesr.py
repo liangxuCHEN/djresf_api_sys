@@ -1,5 +1,5 @@
 import django_filters
-from media_sys.models import WXuser, QiniuMedia
+from media_sys.models import WXuser, Message
 
 # 自定义过滤器需要继承 django_filters.rest_framework.FilterSet 类来写
 class WXuserFilter(django_filters.rest_framework.FilterSet):
@@ -17,3 +17,10 @@ class WXuserFilter(django_filters.rest_framework.FilterSet):
         fields = ['name', 'phone']
 
 
+
+class MessageFilter(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter('user__name', lookup_expr='icontains')
+    phone = django_filters.CharFilter('user__phone', lookup_expr='icontains')
+    class Meta:
+        model = Message
+        fields = ['name', 'phone']

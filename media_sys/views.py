@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from media_sys.models import WXuser, QiniuMedia, Message
 from media_sys.serializers import WxUserSerializer, QiniuMediaSerializer, MessageSerializer, MessageSerializer_json, MessageMoreInfoSerializer
-from media_sys.filtesr import WXuserFilter
+from media_sys.filtesr import WXuserFilter, MessageFilter
 from media_sys.permissions import IsAdminOrReadOnly
 import json
 
@@ -146,7 +146,10 @@ class MessageList(mixins.ListModelMixin,
 class MessageViewSet(viewsets.ModelViewSet):
     """
     用户评论记录：
-    |--openid:微信用户openid, 
+    |--message_id　信息id
+    |--user_id　用户id,可以通过　/wxuser/id 访问
+    |--user_name 微信用户名字
+    |--user_phone　微信用户电话
     |--pics:图片链接，多余一张用　‘+’ 隔开
     |--content: 评论内容
     |--data = {openid: 'xxxxx', pics: 'pic1_url+pic2_url+... ', content: ''}
@@ -155,10 +158,17 @@ class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all().order_by('-created')
     serializer_class = MessageSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_fields = ['user']
+    #filter_fields = ['user']
+    filter_class = MessageFilter
 
     def list(self, request):
+        print(request.GET)
         queryset = Message.objects.all().order_by('-created')
+        #过滤条件
+        if request.GET.get('name'):
+            queryset = queryset.filter(user__name__icontains=request.GET.get('name'))
+        if request.GET.get('phone'):
+            queryset = queryset.filter(user__phone__icontains=request.GET.get('phone'))
         serializer = MessageMoreInfoSerializer(queryset, many=True)
         return Response(serializer.data)
 
