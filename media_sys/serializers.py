@@ -33,3 +33,15 @@ class MessageSerializer_json(serializers.ModelSerializer):
         fields = ('id','user', 'content', 'pics', 'created')
 
 
+
+class MessageMoreInfoSerializer(serializers.BaseSerializer):
+    def to_representation(self, obj):
+        return {
+            'message_id':obj.id,
+            'user_id': obj.user_id,
+            'user_name': obj.user.name,
+            'user_phone': obj.user.phone,
+            'content': obj.content,
+            'pics': obj.pics,
+            'created': obj.created
+        }

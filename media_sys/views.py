@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views import generic, csrf
 
@@ -7,7 +7,7 @@ from rest_framework import viewsets,mixins,generics,permissions, status
 from rest_framework.response import Response
 
 from media_sys.models import WXuser, QiniuMedia, Message
-from media_sys.serializers import WxUserSerializer, QiniuMediaSerializer, MessageSerializer, MessageSerializer_json
+from media_sys.serializers import WxUserSerializer, QiniuMediaSerializer, MessageSerializer, MessageSerializer_json, MessageMoreInfoSerializer
 from media_sys.filtesr import WXuserFilter
 from media_sys.permissions import IsAdminOrReadOnly
 import json
@@ -139,7 +139,7 @@ class MessageList(mixins.ListModelMixin,
                     res = {'message': "没有此用户", 'is_error': True}
             except Exception as e:
                 res = {'message': e, 'is_error': True}
-            return HttpResponse(json.dumps(res), content_type="application/json")
+            return JsonResponse(res)
 
 
 
@@ -157,6 +157,10 @@ class MessageViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_fields = ['user']
 
+    def list(self, request):
+        queryset = Message.objects.all().order_by('-created')
+        serializer = MessageMoreInfoSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request):
         user = request.POST.get('user')
