@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # )
 
     add_msg(
-        user='8b33a9ecec23e5f5af8231ze',
+        user='8987987987987',
         content='Mer0000y',
         pics='1nnnnnnnnnnnnnnnnnnnnnnn74'
     )

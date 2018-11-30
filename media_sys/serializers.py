@@ -5,14 +5,14 @@ from media_sys.models import WXuser, Message, QiniuMedia
 class WxUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = WXuser
-        fields = ('openid', 'name', 'phone')
+        fields = ('id','openid', 'name', 'phone')
 
 
 class QiniuMediaSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = QiniuMedia
-        fields = ('name', 'key', 'image', 'qn_url','created')
+        fields = ('id','name', 'key', 'image', 'qn_url','created')
 
 
 class MessageSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,7 +21,7 @@ class MessageSerializer(serializers.HyperlinkedModelSerializer):
     """
     class Meta:
         model = Message
-        fields = ('user', 'content', 'pics', 'created')
+        fields = ('id','user', 'content', 'pics', 'created')
 
 
 class MessageSerializer_json(serializers.ModelSerializer):
@@ -30,6 +30,6 @@ class MessageSerializer_json(serializers.ModelSerializer):
     """
     class Meta:
         model = Message
-        fields = ('user', 'content', 'pics', 'created')
+        fields = ('id','user', 'content', 'pics', 'created')
 
 

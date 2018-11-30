@@ -58,6 +58,9 @@ class WxUserDetail(generics.RetrieveAPIView):
 class WxUserViewSet(viewsets.ModelViewSet):
     """
     微信用户记录.
+    |-openid: 微信openid
+    |-name: 用户名
+    |-phone:手机号码
     """
     queryset = WXuser.objects.all().order_by('-created')
     serializer_class = WxUserSerializer
@@ -89,6 +92,14 @@ class WxUserViewSet(viewsets.ModelViewSet):
 class QiniuMediaViewSet(viewsets.ModelViewSet):
     """
     七牛多媒体保存
+    |-name: 图片名称
+    |-key: 七牛上的名称
+    |-qn_url: 完整图片地址(不用输入)
+    |-image: 上传图片文件，上传成功后会变成本地访问的地址，但不开放访问
+    |-created: 创建时间
+    
+    上传单张图片参数
+    data = {name, key, image}
     """
     queryset = QiniuMedia.objects.all().order_by('-created')
     serializer_class = QiniuMediaSerializer
@@ -134,10 +145,16 @@ class MessageList(mixins.ListModelMixin,
 
 class MessageViewSet(viewsets.ModelViewSet):
     """
-    用户评论.
+    用户评论记录：
+    |--openid:微信用户openid, 
+    |--pics:图片链接，多余一张用　‘+’ 隔开
+    |--content: 评论内容
+    |--data = {openid: 'xxxxx', pics: 'pic1_url+pic2_url+... ', content: ''}
+
     """
     queryset = Message.objects.all().order_by('-created')
     serializer_class = MessageSerializer
+    permission_classes = (IsAdminOrReadOnly,)
     filter_fields = ['user']
 
 
