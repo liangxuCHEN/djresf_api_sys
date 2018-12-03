@@ -152,7 +152,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     |--user_phone　微信用户电话
     |--pics:图片链接，多余一张用　‘+’ 隔开
     |--content: 评论内容
-    |--data = {openid: 'xxxxx', pics: 'pic1_url+pic2_url+... ', content: ''}
+    |--data = {user: 'input user oponid', pics: 'pic1_url+pic2_url+... ', content: ''}
 
     """
     queryset = Message.objects.all().order_by('-created')
