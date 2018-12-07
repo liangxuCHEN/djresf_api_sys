@@ -33,6 +33,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^', include(router.urls)),
     url(r'^home$', views.home_page, name='home_page'),
+    #url(r'^qiniu/token$', views.get_token, name='qiniu_token'),
     url(r'^api/', include('rest_framework.urls', namespace='rest_framework')),
     #path('v2/wxusers/', views.WxUserList.as_view()),
     #path('wxusers/<int:pk>/', views.WxUserDetail.as_view()),

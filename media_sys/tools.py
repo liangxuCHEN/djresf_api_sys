@@ -1,6 +1,32 @@
 from qiniu import Auth, put_file, etag, urlsafe_base64_encode
 from qiniu import BucketManager
+import os
+import zipfile
 
+
+
+def un_zip(file_name):
+    """unzip zip file"""
+    file_paths = []
+    zip_file = zipfile.ZipFile(file_name)
+    if os.path.isdir(file_name + "_files"):
+        pass
+    else:
+        os.mkdir(file_name + "_files")
+    for name in zip_file.namelist():
+        zip_file.extract(name, file_name + "_files/")
+        file_paths.append({"path":"%s_files/%s" % (file_name, name), "name":name})
+    zip_file.close()
+
+    return file_paths
+
+
+def handle_uploaded_file(f, file_name):
+    with open(file_name, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+    return un_zip(file_name)
 
 class Qiqiu(object):
 
@@ -39,6 +65,9 @@ class Qiqiu(object):
         #print(info)
         return ret['hash'] == etag(file_path)
 
+    def get_token(self, bucket_name):
+        return self.q.upload_token(bucket_name),
+
     def fetch(self, bucket_name, key, url):
         """
         把网络照片保存起来
@@ -51,7 +80,7 @@ class Qiqiu(object):
         print(info)
         return ret['key'] == key
 
-    def list_files(self, limit=10, prefix=None, delimiter=None, marker=None):
+    def list_files(self, bucket_name, limit=10, prefix=None, delimiter=None, marker=None):
         ret, eof, info = self.bucket.list(bucket_name, prefix, marker, limit, delimiter)
         print(info)
         print(ret)

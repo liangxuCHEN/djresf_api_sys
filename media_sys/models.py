@@ -1,6 +1,14 @@
 from django.db import models
 from api_sys.settings import QINIU_ACCESS_KEY, QINIU_SECRET_KEY, QINIU_BUCKET_DOMAIN, QINIU_BUCKET_NAME
 # Create your models here.
+from django.db.models.signals import post_save
+from media_sys.tools import Qiqiu, handle_uploaded_file
+
+import uuid
+from datetime import datetime
+import os
+
+
 class WXuser(models.Model):
     """
     微信用户信息
@@ -43,23 +51,37 @@ class QiniuMedia(models.Model):
         ordering = ('created',)
 
     def save(self, *args, **kwargs):
-        file_name = str(uuid.uuid4())[:12]
-        self.key = "%s/%s" % (self.key, file_name)
+        file_name = str(uuid.uuid4())[:6]
+        self.key = "%s/%s/%s/%s" % (
+            self.key,
+            datetime.today().strftime("%Y%m%d"),
+            file_name,
+            self.image
+        )
         self.qn_url = "http://%s/%s" % (QINIU_BUCKET_DOMAIN, self.key)
         super(QiniuMedia, self).save(*args, **kwargs)
 
 
-from django.db.models.signals import post_save
-from media_sys.tools import Qiqiu
+class QiniuZipModel(models.Model):
+    """
+    记录上传到七牛的压缩包图片
+    """
+    name = models.CharField(max_length=64)
+    key = models.CharField(max_length=512, null=True)
+    image_logs = models.TextField(default="{}")
+    created = models.DateTimeField(auto_now_add=True)
 
-import uuid
+    class Meta:
+        ordering = ('created',)
 
 
 def upload_image(**kwarge):
     # disable the handler during fixture loading
     instance = kwarge['instance']
+
     # 上传到七牛云服务
     qn = Qiqiu(QINIU_ACCESS_KEY, QINIU_SECRET_KEY)
+    #key = "%s.%s" % (instance.key, get_file_extension(instance.image.path))
     qn.upload(QINIU_BUCKET_NAME, instance.key, instance.image.path)
 
 

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from media_sys.models import WXuser, Message, QiniuMedia
 
+import json
 
 class WxUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -43,5 +44,20 @@ class MessageMoreInfoSerializer(serializers.BaseSerializer):
             'user_phone': obj.user.phone,
             'content': obj.content,
             'pics': obj.pics,
+            'created': obj.created
+        }
+
+
+class ZipInfoSerializer(serializers.BaseSerializer):
+    def to_representation(self, obj):
+        try:
+            logs = json.loads(obj.image_logs)
+        except:
+            logs = "without logs"
+        return {
+            'id':obj.id,
+            'name':obj.name,
+            'key': obj.key,
+            'upload_logs': logs,
             'created': obj.created
         }

@@ -3,7 +3,7 @@ from django.test import TestCase
 import requests
 # Create your tests here.
 
-LOCAL = 'http://localhost:8989'
+LOCAL = 'http://localhost:8080'
 
 Remote = 'http://fs.foshanplus.com:8082'
 
@@ -38,6 +38,24 @@ def get_user():
     res = requests.get(url)
     print(res.json())
 
+
+def upload_zip():
+    path = "/home/louis/Pictures/pic2.zip"
+    url = LOCAL + "/qnpic/upload_zip/"
+
+    files = {
+        "zip": ("test", open(path, "rb")),
+    }
+    data = {
+        "name": "中文测试",
+        "key": "test/改革开放",
+        "qn_url": ""
+    }
+
+    res = requests.post(url, data=data,files=files)
+    print(res.status_code)
+    print(res.content)
+
 if __name__ == '__main__':
     # add_user(
     #     openid='93c1232323e5f5e',
@@ -45,10 +63,10 @@ if __name__ == '__main__':
     #     phone='00000712374'
     # )
     #
-    add_msg(
-        user='20181127164248-2030636938-2643',
-        content='test content',
-        pics=''
-    )
+    # add_msg(
+    #     user='20181127164248-2030636938-2643',
+    #     content='test content',
+    #     pics=''
+    # )
 
-    #get_user()
+    upload_zip()
