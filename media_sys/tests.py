@@ -7,7 +7,7 @@ LOCAL = 'http://localhost:8080'
 
 Remote = 'http://fs.foshanplus.com:8082'
 
-#Remote_100 = 'http://172.16.17.100:8999'
+Remote_100 = 'http://172.16.17.100:8999'
 
 def add_user(openid,name,phone):
     url = Remote + "/wxusers/"
@@ -41,7 +41,7 @@ def get_user():
 
 def upload_zip():
     path = "/home/louis/Pictures/pic2.zip"
-    url = LOCAL + "/qnpic/upload_zip/"
+    url = Remote_100 + "/qnpic/upload_zip/"
 
     files = {
         "zip": ("test", open(path, "rb")),

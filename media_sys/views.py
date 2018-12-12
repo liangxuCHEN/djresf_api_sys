@@ -201,6 +201,19 @@ class QiniuMediaViewSet(viewsets.ModelViewSet):
         serializer = ZipInfoSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=False)
+    def find_pics(self, request):
+        """
+        查询图片
+        参数：key
+        例子：http://img.foshanplus.com/img/40years/content/90/93_102_86.png
+        可以搜索: "img/40years/", "img/40years/content"，"img/40years/content/90” 
+        """
+        key = request.GET.get('key')
+        qn = Qiqiu(settings.QINIU_ACCESS_KEY, settings.QINIU_SECRET_KEY)
+        content = {'domain': settings.QINIU_BUCKET_DOMAIN}
+        content['datas'] = qn.list_files(settings.QINIU_BUCKET_NAME,prefix=key)
+        return allow_all(JsonResponse(content))
 
 
 class MessageList(mixins.ListModelMixin,

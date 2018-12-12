@@ -80,11 +80,9 @@ class Qiqiu(object):
         print(info)
         return ret['key'] == key
 
-    def list_files(self, bucket_name, limit=10, prefix=None, delimiter=None, marker=None):
+    def list_files(self, bucket_name, limit=500, prefix=None, delimiter=None, marker=None):
         ret, eof, info = self.bucket.list(bucket_name, prefix, marker, limit, delimiter)
-        print(info)
-        print(ret)
-        return ret['items']
+        return ret
 
     def list_buckets(self):
         ret, info = self.bucket.buckets()
