@@ -212,8 +212,15 @@ class QiniuMediaViewSet(viewsets.ModelViewSet):
         key = request.GET.get('key')
         qn = Qiqiu(settings.QINIU_ACCESS_KEY, settings.QINIU_SECRET_KEY)
         content = {'domain': settings.QINIU_BUCKET_DOMAIN}
-        content['datas'] = qn.list_files(settings.QINIU_BUCKET_NAME,prefix=key)
+        if key:
+            content['datas'] = qn.list_files(settings.QINIU_BUCKET_NAME,prefix=key)
+        else:
+            content['datas'] = qn.list_files(settings.QINIU_BUCKET_NAME, prefix=key, limit=30)
         return allow_all(JsonResponse(content))
+
+    @action(detail=False)
+    def edit_page(self, request):
+        return render(request, 'qiniu_edit_page.html')
 
 
 class MessageList(mixins.ListModelMixin,

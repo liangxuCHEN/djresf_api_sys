@@ -1,0 +1,272 @@
+ <!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="BI system demo">
+    <meta name="author" content="Louis">
+
+    <script src="http://172.16.17.100:8081/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="http://172.16.17.100:8081/boostrap/css/bootstrap.min.css">
+
+    <title>测试</title>
+
+</head>
+
+<body>
+    <div id="row">
+        <div class="col-md-4">
+            <div class="row">
+
+                <div class="well">
+                    <div class="input-group">
+                      <input type="text" class="form-control" placeholder="输入图片前缀....." id="key">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" onclick="find_items()">搜索</button>
+                      </span>
+                    </div><!-- /input-group -->
+                </div>
+
+                <ul class="list-group" id="results"></ul>
+            </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="row">
+            <div class="well"><h5> 缩略图预览 </h5></div>
+            <div id='image_view' style="width: 640px;height: 640px"></div>
+            <div id='tmp_view'></div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <form class="form" id="pic_form">
+          <fieldset>
+            <div id="legend" class="">
+              <legend class="">编辑图片</legend>
+            </div>
+          <div class="form-group">
+                <label class="control-label">图片处理方式</label>
+                <div class="controls">
+            <!-- Inline Radios -->
+            <label class="form-group">
+              <input type="radio" value="not_cut" name="method" checked="checked">
+              不缩略剪裁
+            </label>
+            <label class="form-group">
+              <input type="radio" value="wh_cut" name="method">
+              指定宽高缩略剪裁
+            </label>
+            <label class="form-group">
+              <input type="radio" value="ls_cut" name="method">
+              指定长短边缩略剪裁
+            </label>
+        </div>
+              </div><div class="form-group">
+                <label class="control-label">图片格式</label>
+                <div class="controls">
+            <!-- Inline Radios -->
+            <label class="form-group">
+              <input type="radio" value="same" name="image_type" checked="checked">
+              与原图一致
+            </label>
+            <label class="form-group">
+              <input type="radio" value="JPG" name="image_type">
+              JPG
+            </label>
+            <label class="form-group">
+              <input type="radio" value="PNG" name="image_type">
+              PNG
+            </label>
+            <label class="form-group">
+              <input type="radio" value="SVG" name="image_type">
+              SVG
+            </label>
+            <label class="form-group">
+              <input type="radio" value="GIF" name="image_type">
+              GIF
+            </label>
+            <label class="form-group">
+              <input type="radio" value="BMP" name="image_type">
+              BMP
+            </label>
+            <label class="form-group">
+              <input type="radio" value="TIFF" name="image_type">
+              TIFF
+            </label>
+            <label class="form-group">
+              <input type="radio" value="WEBP" name="image_type">
+              WEBP
+            </label>
+        </div>
+              </div>
+
+          <div class="form-group">
+
+                <div class="controls">
+                    <label>长度
+                        <input type="text" placeholder="width" class="input-xlarge" name="width">
+                        <p class="help-block"></p>
+                    </label>
+                </div>
+              </div>
+
+          <div class="form-group">
+
+                <!-- Text input-->
+                <div class="controls">
+                    <label>高度
+
+                        <input type="text" placeholder="height" class="input-xlarge" name="height">
+                        <p class="help-block"></p>
+                    </label>
+                </div>
+
+              </div>
+
+          <div class="form-group">
+
+                <!-- Text input-->
+                <div class="controls">
+                    <label>图片质量
+
+                      <input type="number" class="input-xlarge" name="quality" value="100">
+                      <p class="help-block">1-100</p>
+
+                    </label>
+                </div>
+              </div>
+
+          </fieldset>
+        </form>
+
+        <button class="btn btn-sm btn-default" onclick="make_pic()">获取图片</button>
+    </div>
+
+</body>
+
+<script type="text/javascript">
+
+function find_items(argument) {
+    key = $('#key').val()
+    if(key == ""){return}
+
+    $('#results').empty()
+
+    getDataURL = "/qnpic/find_pics?key="+key
+    $.ajax({
+            url: getDataURL,
+            useDefaultXhrHeader: false, //important, otherwise its not working
+            type: "GET",
+            //dataType: "json",
+            success: function(response, opts) {
+                html = ''
+                response["datas"]['items'].forEach(function(val,index, arr){
+                    url = 'http://'+response['domain']+ '/' + val.key
+                    html += '<li class="list-group-item" data-miniType="'+val.mimeType+'" data-url="'+url+'">'+url
+                    var minitype = val.mimeType
+                    if(minitype.indexOf('image') !== -1){
+                        html += '| <button class="btn btn-sm btn-default" onclick="show_pic(this)"' + 'data-url="'+url+'">'+ '显示图片</button>'
+                        html += '| <a class="btn btn-sm btn-default" target="_blank" href="'+url+'">'+ '新窗口打开</a>'
+                    }
+                    html += '</li>'
+                })
+                $('#results').append(html)
+            }
+        })
+}
+
+function show_pic(obj){
+    $('#image_view').empty()
+    var html = '<img id="tmp_pic" src="'+ obj.dataset.url +'?imageMogr2/thumbnail/640x640/format/jpg/blur/1x0/quality/75"'+ 'data-url="'+obj.dataset.url+'"/>'
+    $('#image_view').append(html)
+}
+
+function make_pic(){
+       var values = $('form').serializeArray();
+       var url = $('#tmp_pic').data("url")
+       var code = {}
+       values.forEach(function(val,index, arr){
+            switch(val.name)
+            {
+                case 'method':
+                    if (val.value == 'not_cut'){
+                        code['method'] = '0'
+                    } else if (val.value == 'wh_cut') {
+                        code['method'] = '2'
+                    } else {
+                        code['method'] = '5'
+                    }
+
+                  break;
+                case 'image_type':
+                        switch(val.value)
+                        {
+                            case 'same':
+                                code['image_type'] = ''
+                              break;
+                            case 'JPG':
+                                code['image_type'] = 'format/jpg'
+                              break;
+                            case 'PNG':
+                                code['image_type'] = 'format/png'
+                              break;
+                            case 'SVG':
+                                code['image_type'] = 'format/svg'
+                              break;
+                            case 'GIF':
+                                code['image_type'] = 'format/gif'
+                              break;
+                            case 'BMP':
+                                code['image_type'] = 'format/bmp'
+                              break;
+                            case 'TIFF':
+                                code['image_type'] = 'format/tiff'
+                              break;
+                            case 'WEBP':
+                                code['image_type'] = 'format/webp'
+                              break;
+
+                            default:
+                                break;
+                        }
+                  break;
+
+                case 'width':
+                    code['width'] = val.value
+                  break;
+                case 'height':
+                    code['height'] = val.value
+                  break;
+                case 'quality':
+                    code['quality'] = val.value
+                  break;
+                default:
+                  break;
+            }
+       })
+
+       //构建url
+       if (code.method =='0'){
+            //不裁剪，不需要长宽
+            url +='?imageView2/'+code.method
+       } else {
+            url +='?imageView2/'+code.method+'/w/'+code.width+'/h/'+code.height
+       }
+
+       if (code.image_type !==''){
+            url += '/'+'format/'+code.image_type
+        }
+
+       url += '/q/'+code.quality
+       $('#tmp_view').empty()
+       var html = '<hr>'
+       html += '<p>图片地址: <strong>'+　url +'</strong> <a class="btn btn-sm btn-default" target="_blank" href="'+url+'">保存</a></p>'
+       html += '<img src="'+url+'"/>'
+       $('#tmp_view').append(html)
+}
+</script>
