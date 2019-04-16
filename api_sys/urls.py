@@ -35,7 +35,9 @@ urlpatterns = [
     url(r'^home$', views.home_page, name='home_page'),
     #url(r'^qiniu/token$', views.get_token, name='qiniu_token'),
     url(r'^api/', include('rest_framework.urls', namespace='rest_framework')),
-    #path('v2/wxusers/', views.WxUserList.as_view()),
+
+
+    url(r'test_task', views.test_task, name='task'),
     #path('wxusers/<int:pk>/', views.WxUserDetail.as_view()),
 
     #path('v2/message/', views.MessageList.as_view()),

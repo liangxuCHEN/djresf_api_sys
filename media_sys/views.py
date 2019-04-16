@@ -13,6 +13,7 @@ from media_sys.serializers import WxUserSerializer, QiniuMediaSerializer, Messag
 from media_sys.filtesr import WXuserFilter, MessageFilter
 from media_sys.permissions import IsAdminOrReadOnly
 from media_sys.tools import Qiqiu, handle_uploaded_file
+from media_sys.task import dosomething, mul
 
 from api_sys import settings
 
@@ -50,12 +51,10 @@ class WxUserList(mixins.ListModelMixin,
     serializer_class = WxUserSerializer
 
     def get(self, request, *args, **kwargs):
-        print('request', request.GET)
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         #request.POST.get('openid')
-        print('request', request.POST)
         return self.create(request, *args, **kwargs)
 
 class WxUserDetail(generics.RetrieveAPIView):
@@ -279,7 +278,6 @@ class MessageViewSet(viewsets.ModelViewSet):
     filter_class = MessageFilter
 
     def list(self, request):
-        print(request.GET)
         queryset = Message.objects.all().order_by('-created')
         #过滤条件
         if request.GET.get('name'):
@@ -321,6 +319,24 @@ class MessageViewSet(viewsets.ModelViewSet):
                 res = {'message': e, 'is_error': True}
 
         return Response(json.dumps(res))
+
+
+
+def test_task(request):
+    a = request.GET.get('a', '0')
+    b = request.GET.get('b', '0')
+
+    try:
+        a = int(a)
+        b = int(b)
+    except:
+        a = 0
+        b = 0
+
+    res1 = dosomething.delay(a,b)
+    res2 = mul.delay(a, b)
+    return JsonResponse({'a':a, 'b':b})
+
 
 
 
